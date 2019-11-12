@@ -101,7 +101,8 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/load_configuration.py" \
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/parse_variables_files.py" \
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/poll_appsession_status.py" \
-    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/smpapp.config.template.json" .
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/smpapp.config.template.json" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py".
 
     # Activate Conda environment
     source /home/transfer/miniconda3/bin/activate cruk
