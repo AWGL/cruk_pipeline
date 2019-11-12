@@ -70,9 +70,6 @@ for fastqPair in $(ls "$sampleId"_S*.fastq.gz | cut -d_ -f1-3 | sort | uniq); do
     rm *_fastqc.zip
     rm -r "$unzippedRead1Fastq"_fastqc "$unzippedRead2Fastq"_fastqc
 
-    #print fastq paths <path2r1> <path2r2>
-    #echo -e "$(find "$PWD" -name "$read1Fastq")\t$(find "$PWD" -name "$read1Fastq")" >> ../FASTQs.list
-
 done
 
 #Now that fastqs have been processed add the sample to a list
@@ -92,8 +89,10 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     # Return to run level directory
     cd ..
 
-    # Copy sample sheet to results folder of runs
-    #cp /data/archive/fastq/"$seqId"/SampleSheet.csv .
+    # Copy pipeline scripts to results folder of runs
+    cp "app.config.template.json" "config.py" "cruk.smp.py" "download_files.py" "file_downloader.py" "file_upload.py" \
+     "identify_files.to_download.py" "launch_app.py" "load_configuration.py" "parse_variables_files.py" \
+     "poll_appsession_status.py" "smpapp.config.template.json" .
 
     # Activate Conda environment
     source /home/transfer/miniconda3/bin/activate cruk
