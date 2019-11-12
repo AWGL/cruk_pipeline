@@ -108,7 +108,8 @@ and use the bioinformatics team email and transfer account password to log in.
 * Fastq upload is sequential and not parallelised, which causes a long run time.
 * There is no way to easily upload fastqs for a subset of samples. A failure at this stage of the process requires all fastqs to be re-uploaded.
 * Deletion of data through the BaseSpace GUI may require navigating to the biosamples tab and setting a new (different, existing) default project for biosamples before data can be deleted.
-* DNA samples without an RNA pair are not supported (this may be a future requirement)
+* Test data and a suite of tests has not yet been written.
+* DNA samples without an RNA pair are not supported (this may be a future requirement).
 
 ### Dependency List
 In case the Conda environment build fails.
