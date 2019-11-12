@@ -90,9 +90,18 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     cd ..
 
     # Copy pipeline scripts to results folder of runs
-    cp "app.config.template.json" "config.py" "cruk.smp.py" "download_files.py" "file_downloader.py" "file_upload.py" \
-     "identify_files.to_download.py" "launch_app.py" "load_configuration.py" "parse_variables_files.py" \
-     "poll_appsession_status.py" "smpapp.config.template.json" .
+    cp "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/app.config.template.json" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/config.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/cruk.smp.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/download_files.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/file_downloader.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/file_upload.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/identify_files.to_download.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/launch_app.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/load_configuration.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/parse_variables_files.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/poll_appsession_status.py" \
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/smpapp.config.template.json" .
 
     # Activate Conda environment
     source /home/transfer/miniconda3/bin/activate cruk
