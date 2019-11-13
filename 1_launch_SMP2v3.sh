@@ -102,7 +102,7 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/parse_variables_files.py" \
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/poll_appsession_status.py" \
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/smpapp.config.template.json" \
-    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py".
+    "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py" .
 
     # Launch script 2 in run folder, which will run python scripts for pipeline
     qsub 2_*.sh
