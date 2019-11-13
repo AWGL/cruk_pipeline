@@ -98,13 +98,16 @@ class FileUpload:
                 # Calculate hash for file chunk
                 md5_b64 = file_splitting.calc_md5_b64(f_chunk)
                 md5_hex = file_splitting.calc_md5_hex(f_chunk)
+                print(md5_hex) ## bugfixing
                 # Populate sample with file chunks
                 chunk_num = i + 1
+                print("just before file upload") ## bugfixing
                 file_part_uploaded_md5 = self.upload_into_file(f_chunk, file_id, chunk_num, md5_b64)
                 # Check MD5s match before and after upload
                 if md5_hex != file_part_uploaded_md5:
                     raise Exception(f"MD5s do not match before and after file upload for file chunk {f_chunk}")
                 # Delete file chunk after upload successful
+                print("file has been uploaded") ## bugfixing
                 os.remove(f_chunk)
                 num_chunks_uploaded += 1
             # Check all file parts uploaded
