@@ -105,6 +105,9 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py" .
 
     # Launch script 2 in run folder, which will run python scripts for pipeline
-    bash 2_*.sh > "2_launch_SMP2v3.out" 2> "2_launch_SMP2v3.err"
+    wd=$PWD
+
+    # Log into head node and navigate to working directory
+    ssh transfer@cvx-gen01 "cd '$wd'"; bash 2_*.sh > "2_launch_SMP2v3.out" 2> "2_launch_SMP2v3.err"
 
 fi
