@@ -2,8 +2,8 @@
 #PBS -l walltime=120:00:00
 #PBS -l ncpus=12
 set -euo pipefail
-PBS_O_WORKDIR=(`echo $PBS_O_WORKDIR | sed "s/^\/state\/partition1//" `)
-cd $PBS_O_WORKDIR
+#PBS_O_WORKDIR=(`echo $PBS_O_WORKDIR | sed "s/^\/state\/partition1//" `)
+#cd $PBS_O_WORKDIR
 
 #Description: CRUK SMP2v3 Illumina TST170 Pipeline (Illumina paired-end). Not for use with other library preps/ experimental conditions.
 #Author: Sara Rey, All Wales Medical Genetics Lab
