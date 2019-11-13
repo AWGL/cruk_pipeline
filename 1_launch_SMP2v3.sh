@@ -105,6 +105,6 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py" .
 
     # Launch script 2 in run folder, which will run python scripts for pipeline
-    qsub 2_*.sh
+    bash 2_*.sh > "2_launch_SMP2v3.out" 2> "2_launch_SMP2v3.err"
 
 fi
