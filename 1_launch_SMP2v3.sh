@@ -107,7 +107,7 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     # Launch script 2 in run folder, which will run python scripts for pipeline
     wd=$PWD
 
-    # Log into head node and navigate to working directory
+    # Log into head node, navigate to working directory and launch script 2
     ssh transfer@cvx-gen01 "cd '$wd'"; bash 2_*.sh > "2_launch_SMP2v3.out" 2> "2_launch_SMP2v3.err"
 
 fi
