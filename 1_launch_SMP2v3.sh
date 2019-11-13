@@ -1,5 +1,5 @@
 #!/bin/bash
-#PBS -l walltime=120:00:00
+#PBS -l walltime=12:00:00
 #PBS -l ncpus=12
 set -euo pipefail
 PBS_O_WORKDIR=(`echo $PBS_O_WORKDIR | sed "s/^\/state\/partition1//" `)
@@ -104,14 +104,7 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/smpapp.config.template.json" \
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py".
 
-    # Activate Conda environment
-    source /home/transfer/miniconda3/bin/activate cruk
+    # Launch script 2 in run folder, which will run python scripts for pipeline
+    qsub 2_*.sh
 
-    # Run CRUK SMP2v3 pipeline
-    python cruk_smp.py -c /data/diagnostics/pipelines/CRUK/CRUK-"$version"/access/
-
-    source /home/transfer/miniconda3/bin/deactivate
-
-    ### Generate Combined QC File ###
-    python /data/diagnostics/scripts/merge_qc_files.py .
 fi
