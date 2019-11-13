@@ -25,6 +25,11 @@ version="2.0.0"
 #             â””â”€â”€ sample3
 #
 # Script 2 runs in run folder
+wd=$PWD
+
+# Log into head node and navigate to working directory
+ssh transfer@cvx-gen01 "cd '$wd'"
+
 # Activate Conda environment
 source /home/transfer/miniconda3/bin/activate cruk
 
