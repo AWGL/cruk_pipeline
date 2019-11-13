@@ -80,7 +80,6 @@ class FileUpload:
             match_read = f.split("_")
             read = match_read[:][-2] # Requires no underscores in file name, SMP2 v3 app also requires this
             # Extract required fastq information from R1- assume R2 is the same- paired end
-            print("pre fq parse")## bugfixing
             if read == "R1":
                 fq_metadata = self.get_fastq_metadata(f)  # Returns (max read length, number of reads in fastq)
                 if len_reads < fq_metadata.get("len_reads"):
@@ -90,28 +89,22 @@ class FileUpload:
                 read_num += num_reads
             # Create a file inside the sample in BaseSpace
             file_id = self.make_file(f, sample_id)
-            print(file_id)## bugfixing
             # Split the file into chunks for upload
             file_splitting = SplitFile(os.path.join(os.getcwd(), sample, f))
             chunks = file_splitting.get_file_chunk_size()
             file_chunks_created = file_splitting.split_file(chunks)
-            print(file_chunks_created)## bugfixing
-            print(os.getcwd)## bugfixing
             num_chunks_uploaded = 0
             for i, f_chunk in enumerate(file_chunks_created):
                 # Calculate hash for file chunk
                 md5_b64 = file_splitting.calc_md5_b64(f_chunk)
                 md5_hex = file_splitting.calc_md5_hex(f_chunk)
-                print(md5_hex) ## bugfixing
                 # Populate sample with file chunks
                 chunk_num = i + 1
-                print("just before file upload") ## bugfixing
                 file_part_uploaded_md5 = self.upload_into_file(f_chunk, file_id, chunk_num, md5_b64)
                 # Check MD5s match before and after upload
                 if md5_hex != file_part_uploaded_md5:
                     raise Exception(f"MD5s do not match before and after file upload for file chunk {f_chunk}")
                 # Delete file chunk after upload successful
-                print("file has been uploaded") ## bugfixing
                 os.remove(f_chunk)
                 num_chunks_uploaded += 1
             # Check all file parts uploaded
