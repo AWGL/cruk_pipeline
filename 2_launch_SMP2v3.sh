@@ -31,9 +31,9 @@ version="2.0.0"
 
 # Run CRUK SMP2v3 pipeline
 ssh transfer@cvx-gen01 "cd '$wd' \
-&& source /home/transfer/miniconda3/bin/activate cruk \
-&& python cruk_smp.py -c /data/diagnostics/pipelines/CRUK/CRUK-"$version"/access/ \
-&& source /home/transfer/miniconda3/bin/deactivate"
+&& 'source /home/transfer/miniconda3/bin/activate cruk' \
+&& 'python cruk_smp.py -c /data/diagnostics/pipelines/CRUK/CRUK-"$version"/access/' \
+&& 'source /home/transfer/miniconda3/bin/deactivate'"
 
 ### Generate Combined QC File ###
 python /data/diagnostics/scripts/merge_qc_files.py .
