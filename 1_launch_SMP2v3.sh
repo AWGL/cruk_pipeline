@@ -105,6 +105,7 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py" .
 
     # Log into head node, Activate Conda environment, launch CRUK SMP2v3 pipeline, deactivate conda environment
+    wd=$PWD
     ssh transfer@cvx-gen01 "cd '$wd' \
     && source /home/transfer/miniconda3/bin/activate cruk \
     && python cruk_smp.py -c /data/diagnostics/pipelines/CRUK/CRUK-"$version"/access/ \
