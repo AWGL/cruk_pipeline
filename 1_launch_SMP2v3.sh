@@ -104,10 +104,13 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/smpapp.config.template.json" \
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py" .
 
-    # Launch script 2 in run folder, which will run python scripts for pipeline
-    wd=$PWD
+    # Log into head node, Activate Conda environment, launch CRUK SMP2v3 pipeline, deactivate conda environment
+    ssh transfer@cvx-gen01 "cd '$wd' \
+    && source /home/transfer/miniconda3/bin/activate cruk \
+    && python cruk_smp.py -c /data/diagnostics/pipelines/CRUK/CRUK-"$version"/access/ \
+    && source /home/transfer/miniconda3/bin/deactivate"
 
-    # Launch script 2
-    bash 2_*.sh > "2_launch_SMP2v3.out" 2> "2_launch_SMP2v3.err"
+    ### Generate Combined QC File ###
+    python /data/diagnostics/scripts/merge_qc_files.py .
 
 fi
