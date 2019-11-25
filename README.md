@@ -105,6 +105,7 @@ and use the bioinformatics team email and transfer account password to log in.
 ***
 ## Notes
 ### Current known issues
+* Multipart file upload is nbot supported on child nodes of the cluster. The request does not error out, but hangs indefinitely.
 * Fastq upload is sequential and not parallelised, which causes a long run time.
 * There is no way to easily upload fastqs for a subset of samples. A failure at this stage of the process requires all fastqs to be re-uploaded.
 * Deletion of data through the BaseSpace GUI may require navigating to the biosamples tab and setting a new (different, existing) default project for biosamples before data can be deleted.
