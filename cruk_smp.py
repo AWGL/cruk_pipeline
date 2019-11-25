@@ -5,6 +5,7 @@ intervention
 Options provided to manually launch and resume the pipeline from various stages if required
 
 """
+import os
 import logging
 import argparse
 import textwrap
