@@ -5,9 +5,7 @@ intervention
 Options provided to manually launch and resume the pipeline from various stages if required
 
 """
-import os
 import logging
-import sys
 import argparse
 import textwrap
 import json
@@ -199,9 +197,11 @@ if __name__ == '__main__':
     handler_out.setLevel(logging.INFO)
     handler_out.addFilter(MyFilter(logging.INFO))
     #handler_err = logging.StreamHandler(sys.stderr)
+    handler_dbg = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.dbg"))
+    handler_dbg.setLevel(logging.WARNING)
+    handler_dbg.addFilter(MyFilter(logging.WARNING))
     handler_err = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.err"))
-    handler_err.setLevel(logging.WARNING)
-    handler_err.addFilter(MyFilter(logging.WARNING))
+    handler_err.setLevel(logging.ERROR)
     log.addHandler(handler_out)
     log.addHandler(handler_err)
 
