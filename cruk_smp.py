@@ -204,6 +204,7 @@ if __name__ == '__main__':
     handler_err = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.err"))
     handler_err.setLevel(logging.ERROR)
     log.addHandler(handler_out)
+    log.addHandler(handler_dbg)
     log.addHandler(handler_err)
 
     # Load command line arguments
