@@ -183,6 +183,7 @@ class CrukSmp:
         # Download all required files- every step requires this
         file_download = FileDownloader(self.authentication_token, smp_appresults, worksheet)
         file_download.download_files()
+        log.info(f"CRUK workflow completed")
 
 
 if __name__ == '__main__':
