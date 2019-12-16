@@ -89,6 +89,7 @@ class CrukSmp:
         self.authentication_token = get_authentication_token(args.path_to_config_file)
         self.worksheet = ""
         self.sample_pairs = ""
+        self.args = args # Work here- is this needed??
 
     def main(self):
         '''
@@ -120,7 +121,7 @@ class CrukSmp:
         log.warning(f"Project id for project name {worksheet} is {project}")
 
         # If whole pipeline required then upload fastq files
-        if not args.tst170 and not args.smp2 and not args.dl_files:
+        if not self.args.tst170 and not self.args.smp2 and not self.args.dl_files:
             # Upload fastq files
             print(f"uploading fastq files for all samples")
             upload.upload_files()
@@ -130,7 +131,7 @@ class CrukSmp:
                                app_version, sample_pairs)
 
         # If resuming from TST170 required or full pipeline- launch the TST170 app
-        if not args.smp2 and not args.dl_files:
+        if not self.args.smp2 and not self.args.dl_files:
             # Launch TST170 application for each pair in turn
             # IMPORTANT NOTE: Only processes paired data
             tst_170 = launch_tst.launch_tst170_pairs()
@@ -150,7 +151,7 @@ class CrukSmp:
                                         f"TST170 stage.")
 
         # If resuming from SMP2v3 required, resuming from TST170 required or full pipeline- launch the SMP2 app
-        if not args.dl_files:
+        if not self.args.dl_files:
             # Create launch app object for SMP2 v3 if not just downloading files- poll TST170 and when complete
             # launch SMP2
             launch_smp = LaunchApp(self.authentication_token, worksheet, project, smp2_app_name,
@@ -164,7 +165,7 @@ class CrukSmp:
 
         # If downloading files from a completed SMP2 app required
         # Create a LaunchApp object for smp2 app if flag to only download files is set- allows for polling of SMP2
-        if args.dl_files:
+        if self.args.dl_files:
             # Load data in required smp2 data from file
             try:
                 with open(os.path.join(os.getcwd(), "smp.json")) as sm:
@@ -210,5 +211,5 @@ if __name__ == '__main__':
 
     # Load command line arguments
     args = get_args()
-    cr = CrukSmp()
+    cr = CrukSmp(args)
     cr.main()
