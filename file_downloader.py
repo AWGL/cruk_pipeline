@@ -22,8 +22,9 @@ class FileDownloader:
             if appresult_dict.get("status") == "Fail":
                 log.info(f"SMP2 v3 app for dna sample {dna_sample} has failed to "
                          f"complete. Investigate further through the BaseSpace website.")
-                identify_files = IdentifyFiles(self.auth, self.worksheet, dna_sample, appresult, [".log"])
-                identify_files.download_sample_files()
+                # Failure means no appresults so this causes a pipeline fail
+                #identify_files = IdentifyFiles(self.auth, self.worksheet, dna_sample, appresult, [".log"])
+                #identify_files.download_sample_files()
             else:
                 log.info(f"Downloading results for sample {dna_sample}")
                 identify_files = IdentifyFiles(self.auth, self.worksheet, dna_sample, appresult,
