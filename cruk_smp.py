@@ -106,7 +106,14 @@ class CrukSmp:
         worksheet = identify_worksheet(all_variables)
 
         # Pair samples- DNA sample is key, RNA sample to look up- if No RNA sample, it is None
-        sample_pairs = create_sample_pairs(all_variables)
+        # Don't pair samples where dna flag is set to 1
+        print(all_variables)
+        pairing_or_dna = find_samples_to_pair(all_variables)
+        dna_only = pairing_or_dna.get('dnas')
+        to_pair = pairing_or_dna.get('pairs')
+        sample_pairs = create_sample_pairs(to_pair)
+        print(dna_only)
+        print(sample_pairs)
         # Write out sample pairs to log file for checking if needed
         log.warning(f"sample pairs are {sample_pairs}")
 
@@ -118,17 +125,17 @@ class CrukSmp:
         project = upload.create_basespace_project()
         log.info(f"Project {worksheet} created")
         log.warning(f"Project id for project name {worksheet} is {project}")
-
+        '''
         # If whole pipeline required then upload fastq files
         if not args.tst170 and not args.smp2 and not args.dl_files:
             # Upload fastq files
             print(f"uploading fastq files for all samples")
             upload.upload_files()
-
+        '''
         # Create launch app object for TST170 app
         launch_tst = LaunchApp(self.authentication_token, worksheet, project, app_name,
-                               app_version, sample_pairs)
-
+                               app_version, sample_pairs, dna_only)
+        '''
         # If resuming from TST170 required or full pipeline- launch the TST170 app
         if not args.smp2 and not args.dl_files:
             # Launch TST170 application for each pair in turn
@@ -184,21 +191,19 @@ class CrukSmp:
         file_download = FileDownloader(self.authentication_token, smp_appresults, worksheet)
         file_download.download_files()
         log.info(f"CRUK workflow completed")
-
+        '''
 
 if __name__ == '__main__':
 
-    __version__ = '2.0.0'
-    __updated__ = "14/11/2019"
+    __version__ = '2.0.1'
+    __updated__ = "21/01/2020"
 
     # Set up logger
     log = logging.getLogger("cruk_smp")
     log.setLevel(logging.DEBUG)
-    #handler_out = logging.StreamHandler(sys.stdout)
     handler_out = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.out"))
     handler_out.setLevel(logging.INFO)
     handler_out.addFilter(MyFilter(logging.INFO))
-    #handler_err = logging.StreamHandler(sys.stderr)
     handler_dbg = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.dbg"))
     handler_dbg.setLevel(logging.WARNING)
     handler_dbg.addFilter(MyFilter(logging.WARNING))

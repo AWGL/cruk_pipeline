@@ -12,13 +12,15 @@ log = logging.getLogger("cruk_smp")
 
 class LaunchApp:
 
-    def __init__(self, auth, worksheet, project_id, app_name, app_version, sample_pairs, tst_170=None, smp=None):
+    def __init__(self, auth, worksheet, project_id, app_name, app_version, sample_pairs, dna_only, tst_170=None,
+                 smp=None):
         self.authorise = auth
         self.worksheet = worksheet
         self.project_id = project_id
         self.app_name = app_name
         self.app_version = app_version
         self.sample_pairs = sample_pairs
+        self.dna_only = dna_only
         self.tst_170 = tst_170
         self.smp = smp
         self.appresults_dict = {}
@@ -37,6 +39,9 @@ class LaunchApp:
             # Write out to log file to provide data required to resume process from this point
             log.warning(f"{dna_sample}: {tst_170_launch}")
         return tst_170
+
+    def launch_tst170_dna(self): #TODO Finish here
+        return None
 
     def launch_tst170_analysis(self, dna_sample):
         '''
