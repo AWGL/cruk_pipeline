@@ -50,7 +50,6 @@ class FileUpload:
                                                sample_data.get("len_reads"), sample_data.get("read_num"))
             # Mark file upload appsession as complete
             self.finalise_appsession(sample_data.get("appsession_id"), sample)
-
         # Wait to allow biosample indexes to update (5 seconds)
         time.sleep(5)
 
