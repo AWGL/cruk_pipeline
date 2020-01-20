@@ -9,3 +9,6 @@ NTC-RNA/
 SampleSheet.csv
 README.md.backup
 sample*/
+cruk_smp.dbg
+cruk_smp.err
+cruk_smp.out
