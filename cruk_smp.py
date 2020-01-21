@@ -125,22 +125,24 @@ class CrukSmp:
         project = upload.create_basespace_project()
         log.info(f"Project {worksheet} created")
         log.warning(f"Project id for project name {worksheet} is {project}")
-        '''
+
         # If whole pipeline required then upload fastq files
         if not args.tst170 and not args.smp2 and not args.dl_files:
             # Upload fastq files
             print(f"uploading fastq files for all samples")
             upload.upload_files()
-        '''
+
         # Create launch app object for TST170 app
         launch_tst = LaunchApp(self.authentication_token, worksheet, project, app_name,
                                app_version, sample_pairs, dna_only)
         '''
         # If resuming from TST170 required or full pipeline- launch the TST170 app
         if not args.smp2 and not args.dl_files:
-            # Launch TST170 application for each pair in turn
+            # Launch TST170 application for each pair in turn and then for each dna only sample in turn
             # IMPORTANT NOTE: Only processes paired data
-            tst_170 = launch_tst.launch_tst170_pairs()
+            tst_170 = launch_tst.launch_tst170(sample_pairs)
+            if dna_only:
+                tst_170 = launch_tst.launch_tst170(dna_only)
 
             # Dump data to file
             with open(os.path.join(os.getcwd(), "tst_170.json"), 'w') as t:

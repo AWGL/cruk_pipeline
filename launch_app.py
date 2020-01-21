@@ -21,27 +21,30 @@ class LaunchApp:
         self.app_version = app_version
         self.sample_pairs = sample_pairs
         self.dna_only = dna_only
-        self.tst_170 = tst_170
+        if tst_170 is None:
+            self.tst_170 = {}
+        else:
+            self.tst_170 = tst_170
+        if smp is None:
+            self.smp = {}
+        else:
+            self.smp = smp
         self.smp = smp
         self.appresults_dict = {}
         self.app_group_id = None
         self.app_id = None
 
-    def launch_tst170_pairs(self):
+    def launch_tst170(self, to_do):
         '''
         :return:
         '''
         # Launch TST170 app for DNA, RNA pairs
-        tst_170 = {}
-        for dna_sample in self.sample_pairs.keys():
+        for dna_sample in to_do.keys():
             tst_170_launch = self.launch_tst170_analysis(dna_sample)
-            tst_170[dna_sample] = tst_170_launch
+            self.tst_170[dna_sample] = tst_170_launch
             # Write out to log file to provide data required to resume process from this point
             log.warning(f"{dna_sample}: {tst_170_launch}")
-        return tst_170
-
-    def launch_tst170_dna(self): #TODO Finish here
-        return None
+        return self.tst_170
 
     def launch_tst170_analysis(self, dna_sample):
         '''
@@ -68,6 +71,7 @@ class LaunchApp:
         appsession = self.launch_application(app_config)
         tst_170_analysis = {"appsession": appsession, "dna_biosample_id": dna_biosample_id,
                                     "rna_biosample_id": rna_biosample_id}
+
         return tst_170_analysis
 
     def poll_tst170_launch_smp2(self):
