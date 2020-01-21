@@ -54,33 +54,37 @@ class LaunchApp:
         :param pairs_dict:
         :return:
         '''
+        # Find specific application ID for application and version number of TST 170 app
+        self.get_app_group_id()
+        self.get_app_id()
+
         # Identify biosamples for upload
         dna_biosample_id = self.get_biosamples(f"{self.worksheet}-{dna_sample}")
         rna_sample = self.sample_pairs.get(dna_sample)
+
         # Paired workflow
         if rna_sample is not None:
             rna_biosample_id = self.get_biosamples(f"{self.worksheet}-{rna_sample}")
             # Create configuration for TST 170 app launch- pairs
             app_config = self.generate_pair_app_config(dna_sample, dna_biosample_id, rna_biosample_id)
+            log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} and {rna_sample}")
+
         # DNA only workflow
         else:
             # Create configuration for TST170 app launch- dna only- pair for the sample could not be located
             app_config = self.generate_dna_app_config(dna_sample, dna_biosample_id)
-        print(app_config)
-        # Find specific application ID for application and version number of TST 170 app
-        self.get_app_group_id()
-        self.get_app_id()
+            rna_biosample_id = None  # Required for tst_170_analysis dictionary returned by this function
+            log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} only")
 
-        # Launch TST 170 application for DNA and RNA pair
-        log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} and {rna_sample}")
-        #appsession = self.launch_application(app_config) #TODO
-        #tst_170_analysis = {"appsession": appsession, "dna_biosample_id": dna_biosample_id,
-                                    #"rna_biosample_id": rna_biosample_id} # TODO
-        tst_170_analysis = {}
+        print(app_config)
+        # Launch TST 170 application
+        appsession = self.launch_application(app_config)
+        tst_170_analysis = {"appsession": appsession, "dna_biosample_id": dna_biosample_id,
+                                    "rna_biosample_id": rna_biosample_id}
         return tst_170_analysis
 
     def poll_tst170_launch_smp2(self):
-        # Poll appsession status of launched TST 170 app- polling runs until appsession is complete then launch SMP2 v3 app
+        # Poll appsession status of launched TST 170 app- until appsession terminates then launch SMP2 v3 app
         smp_appsession = {}
         for dna_sample, tst_values in self.tst_170.items():
             rna_sample = self.sample_pairs.get(dna_sample)
@@ -252,27 +256,6 @@ class LaunchApp:
                 if i.get("VersionNumber") == self.app_version:
                     self.app_id = i.get("Id")
         return self.app_id
-
-    def get_app_form(self):
-        url = v1_api + "/applications/" + self.app_id + "/assets/forms"
-        p = {"status": "active"}
-        head = {"Authorization": self.authorise, "Content-Type": "application/json"}
-        response = requests.get(url, headers=head, params=p)
-        if response.status_code != 200:
-            raise Exception(f"BaseSpace error. Error code {response.status_code} message {response.text}")
-        else:
-            app_form_id = response.json().get("Response").get("Items")[0] #TODO Set this line raise exception if >1
-        return str(app_form_id.get("Id"))
-
-    def get_app_form_items(self, app_form_id):
-        url = v1_api + "/applications/" + self.app_id + "/assets/Forms/" + app_form_id + "/items"
-        head = {"Authorization": self.authorise, "Content-Type": "application/json"}
-        response = requests.get(url, headers=head)
-        if response.status_code != 200:
-            raise Exception(f"BaseSpace error. Error code {response.status_code} message {response.text}")
-        else:
-            response = response.json()
-        return response
 
     def get_biosample_info(self, biosample_id):
         url = v2_api + "/biosamples/" + biosample_id + "/libraries"
