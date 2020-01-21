@@ -107,13 +107,10 @@ class CrukSmp:
 
         # Pair samples- DNA sample is key, RNA sample to look up- if No RNA sample, it is None
         # Don't pair samples where dna flag is set to 1
-        print(all_variables)
         pairing_or_dna = find_samples_to_pair(all_variables)
         dna_only = pairing_or_dna.get('dnas')
         to_pair = pairing_or_dna.get('pairs')
         sample_pairs = create_sample_pairs(to_pair)
-        print(dna_only)
-        print(sample_pairs)
         # Write out sample pairs to log file for checking if needed
         log.warning(f"sample pairs are {sample_pairs}")
 
@@ -147,7 +144,7 @@ class CrukSmp:
             # Dump data to file
             with open(os.path.join(os.getcwd(), "tst_170.json"), 'w') as t:
                 json.dump(tst_170, t)
-        '''
+
         # If resuming from SMP2v3 launch load in required TST170 data from file
         elif args.smp2:
             try:
@@ -163,14 +160,14 @@ class CrukSmp:
             # Create launch app object for SMP2 v3 if not just downloading files- poll TST170 and when complete
             # launch SMP2
             launch_smp = LaunchApp(self.authentication_token, worksheet, project, smp2_app_name,
-                                   smp2_app_version, sample_pairs, tst_170)
+                                   smp2_app_version, sample_pairs, dna_only, tst_170)
             # Poll the tst 170 appsessions until completion, then launch smp2 app
-            smp_appsession = launch_smp.poll_tst170_launch_smp2()
+            smp_appsession = launch_smp.poll_tst170_launch_smp()
 
             # Dump data to file
             with open(os.path.join(os.getcwd(), "smp.json"), 'w') as s:
                 json.dump(smp_appsession, s)
-
+        '''
         # If downloading files from a completed SMP2 app required
         # Create a LaunchApp object for smp2 app if flag to only download files is set- allows for polling of SMP2
         if args.dl_files:

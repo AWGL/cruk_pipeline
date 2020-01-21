@@ -13,7 +13,7 @@ log = logging.getLogger("cruk_smp")
 class LaunchApp:
 
     def __init__(self, auth, worksheet, project_id, app_name, app_version, sample_pairs, dna_only, tst_170=None,
-                 smp=None):
+                 smp=None):  #TODO May not need dna only argument
         self.authorise = auth
         self.worksheet = worksheet
         self.project_id = project_id
@@ -76,16 +76,17 @@ class LaunchApp:
             rna_biosample_id = None  # Required for tst_170_analysis dictionary returned by this function
             log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} only")
 
-        print(app_config)
         # Launch TST 170 application
         appsession = self.launch_application(app_config)
         tst_170_analysis = {"appsession": appsession, "dna_biosample_id": dna_biosample_id,
                                     "rna_biosample_id": rna_biosample_id}
         return tst_170_analysis
 
-    def poll_tst170_launch_smp2(self):
+    def poll_tst170_launch_smp(self):
         # Poll appsession status of launched TST 170 app- until appsession terminates then launch SMP2 v3 app
         smp_appsession = {}
+
+        # Launch SMP2v3 app as each pair completes analysis with the TST170 app
         for dna_sample, tst_values in self.tst_170.items():
             rna_sample = self.sample_pairs.get(dna_sample)
             log.info(f"Polling status of TST 170 application, appsession {tst_values.get('appsession')}")
@@ -95,16 +96,22 @@ class LaunchApp:
                      f"has finished with status {poll_result}")
             if poll_result == "Fail":
                 log.info(f"TST170 app for samples {dna_sample} and {rna_sample} has failed to"
-                        f"complete. Investigate further through the BaseSpace website.")
+                         f"complete. Investigate further through the BaseSpace website.")
                 # Move on to the next pair's appsession
                 continue
-            # Launch SMP2v3 app as each pair completes analysis with the TST170 app
+
             # Find specific application ID for application and version number of SMP2 app
             self.get_app_group_id()
             self.get_app_id()
-            log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} and "
-                     f"{self.sample_pairs.get(dna_sample)}")
-            smp_appsession[dna_sample] = self.launch_smp_analysis(dna_sample, tst_values)
+
+            # Paired workflow
+            rna_sample = self.sample_pairs.get(dna_sample)
+            if rna_sample is not None:
+                log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} and {rna_sample}")
+                smp_appsession[dna_sample] = self.launch_smp_analysis(dna_sample, tst_values)
+            else:
+                log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} only")
+                smp_appsession[dna_sample] = self.launch_smp_analysis(dna_sample, tst_values)
             self.smp = smp_appsession
         return self.smp
 
@@ -116,9 +123,14 @@ class LaunchApp:
         '''
         # Get dataset ids using TST 170 appsession id and nucleotide biosample id
         dna_dataset_id = self.get_datasets(tst_values.get("appsession"), tst_values.get("dna_biosample_id"))
-        rna_dataset_id = self.get_datasets(tst_values.get("appsession"), tst_values.get("rna_biosample_id"))
-        # Create configuration for SMP2 v3 app launch
-        smp_app_config = self.generate_smp_app_config(dna_sample_id, dna_dataset_id, rna_dataset_id)
+        # Determine if paired sample or dna sample
+        if tst_values.get('rna_biosample_id') is not None:
+            rna_dataset_id = self.get_datasets(tst_values.get("appsession"), tst_values.get("rna_biosample_id"))
+            # Create configuration for SMP2 v3 app launch- paired samples
+            smp_app_config = self.generate_smp_pair_app_config(dna_sample_id, dna_dataset_id, rna_dataset_id)
+        else:
+            # Create configuration for SMP2 v3 app launch- dna only samples
+            smp_app_config = self.generate_smp_dna_app_config(dna_sample_id, dna_dataset_id)
 
         # Launch SMP2 v3
         smp_appsession = self.launch_application(smp_app_config)
@@ -210,7 +222,7 @@ class LaunchApp:
                 raise Exception("Config file is incorrectly formatted and does not contain valid json")
         return app_config
 
-    def generate_smp_app_config(self, dna_sample_id, dna_dataset_id, rna_dataset_id):
+    def generate_smp_pair_app_config(self, dna_sample_id, dna_dataset_id, rna_dataset_id):
         dna_config = f"datasets/{dna_dataset_id}"
         rna_config = f"datasets/{rna_dataset_id}"
         # Obtain date and time
@@ -226,6 +238,26 @@ class LaunchApp:
                 inp["app-result-dna-id"] = dna_config
                 inp["project-id"] = f"projects/{self.project_id}"
                 inp["app-result-rna-id"] = rna_config
+                app_config["Name"] = f"{dna_sample_id}-{rna_sample_id} SMP2 v3 {date_time}"
+            except json.decoder.JSONDecodeError:
+                raise Exception("SMP config file is incorrectly formatted and does not contain valid json")
+        return app_config
+
+    def generate_smp_dna_app_config(self, dna_sample_id, dna_dataset_id):
+        dna_config = f"datasets/{dna_dataset_id}"
+        # Obtain date and time
+        current_time = datetime.datetime.now()
+        # remove seconds from date and time and create string
+        date_time = ":".join(str(current_time).split(":")[:-1])
+        # Obtain rna sample name for name of appsession
+        rna_sample_id = self.sample_pairs.get(dna_sample_id)
+        with open(os.path.join("smpapp.config.template.json")) as smpapp_config_file:
+            try:
+                app_config = json.load(smpapp_config_file)
+                inp = app_config.get("InputParameters")
+                inp["app-result-dna-id"] = dna_config
+                inp["project-id"] = f"projects/{self.project_id}"
+                del inp["app-result-rna-id"]
                 app_config["Name"] = f"{dna_sample_id}-{rna_sample_id} SMP2 v3 {date_time}"
             except json.decoder.JSONDecodeError:
                 raise Exception("SMP config file is incorrectly formatted and does not contain valid json")
