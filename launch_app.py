@@ -57,21 +57,26 @@ class LaunchApp:
         # Identify biosamples for upload
         dna_biosample_id = self.get_biosamples(f"{self.worksheet}-{dna_sample}")
         rna_sample = self.sample_pairs.get(dna_sample)
-        rna_biosample_id = self.get_biosamples(f"{self.worksheet}-{rna_sample}")
-
-        # Create configuration for TST 170 app launch
-        app_config = self.generate_app_config(dna_sample, dna_biosample_id, rna_biosample_id)
-
+        # Paired workflow
+        if rna_sample is not None:
+            rna_biosample_id = self.get_biosamples(f"{self.worksheet}-{rna_sample}")
+            # Create configuration for TST 170 app launch- pairs
+            app_config = self.generate_pair_app_config(dna_sample, dna_biosample_id, rna_biosample_id)
+        # DNA only workflow
+        else:
+            # Create configuration for TST170 app launch- dna only- pair for the sample could not be located
+            app_config = self.generate_dna_app_config(dna_sample, dna_biosample_id)
+        print(app_config)
         # Find specific application ID for application and version number of TST 170 app
         self.get_app_group_id()
         self.get_app_id()
 
         # Launch TST 170 application for DNA and RNA pair
         log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} and {rna_sample}")
-        appsession = self.launch_application(app_config)
-        tst_170_analysis = {"appsession": appsession, "dna_biosample_id": dna_biosample_id,
-                                    "rna_biosample_id": rna_biosample_id}
-
+        #appsession = self.launch_application(app_config) #TODO
+        #tst_170_analysis = {"appsession": appsession, "dna_biosample_id": dna_biosample_id,
+                                    #"rna_biosample_id": rna_biosample_id} # TODO
+        tst_170_analysis = {}
         return tst_170_analysis
 
     def poll_tst170_launch_smp2(self):
@@ -155,7 +160,7 @@ class LaunchApp:
             raise Exception(f"Problem with finding biosample data in BaseSpace: {response.json()}")
         return response.json().get("Items")[0].get("Id")
 
-    def generate_app_config(self, dna_sample_id, dna_biosample_id, rna_biosample_id):
+    def generate_pair_app_config(self, dna_sample_id, dna_biosample_id, rna_biosample_id):
         # Generate biosamples in correct format for application launch
         dna_libraryprep_id = self.get_biosample_info(dna_biosample_id)
         dna_config = f"biosamples/{dna_biosample_id}/librarypreps/{dna_libraryprep_id}"
@@ -174,6 +179,28 @@ class LaunchApp:
                 inp["dna-sample-id"] = dna_config
                 inp["project-id"] = f"projects/{self.project_id}"
                 inp["rna-sample-id"] = rna_config
+                app_config["Name"] = f"{dna_sample_id}-{rna_sample_id} TruSight Tumour 170 {date_time}"
+            except json.decoder.JSONDecodeError:
+                raise Exception("Config file is incorrectly formatted and does not contain valid json")
+        return app_config
+
+    def generate_dna_app_config(self, dna_sample_id, dna_biosample_id):
+        # Generate biosamples in correct format for application launch
+        dna_libraryprep_id = self.get_biosample_info(dna_biosample_id)
+        dna_config = f"biosamples/{dna_biosample_id}/librarypreps/{dna_libraryprep_id}"
+        # Obtain date and time
+        current_time = datetime.datetime.now()
+        # remove seconds from date and time and create string
+        date_time = ":".join(str(current_time).split(":")[:-1])
+        # Obtain rna sample name for name of appsession
+        rna_sample_id = self.sample_pairs.get(dna_sample_id)
+        with open(os.path.join(os.getcwd(), "app.config.template.json")) as app_config_file:
+            try:
+                app_config = json.load(app_config_file)
+                inp = app_config.get("InputParameters")
+                inp["dna-sample-id"] = dna_config
+                inp["project-id"] = f"projects/{self.project_id}"
+                del inp["rna-sample-id"]
                 app_config["Name"] = f"{dna_sample_id}-{rna_sample_id} TruSight Tumour 170 {date_time}"
             except json.decoder.JSONDecodeError:
                 raise Exception("Config file is incorrectly formatted and does not contain valid json")

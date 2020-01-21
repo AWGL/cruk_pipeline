@@ -135,7 +135,7 @@ class CrukSmp:
         # Create launch app object for TST170 app
         launch_tst = LaunchApp(self.authentication_token, worksheet, project, app_name,
                                app_version, sample_pairs, dna_only)
-        '''
+
         # If resuming from TST170 required or full pipeline- launch the TST170 app
         if not args.smp2 and not args.dl_files:
             # Launch TST170 application for each pair in turn and then for each dna only sample in turn
@@ -147,7 +147,7 @@ class CrukSmp:
             # Dump data to file
             with open(os.path.join(os.getcwd(), "tst_170.json"), 'w') as t:
                 json.dump(tst_170, t)
-
+        '''
         # If resuming from SMP2v3 launch load in required TST170 data from file
         elif args.smp2:
             try:
