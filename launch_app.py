@@ -116,11 +116,17 @@ class LaunchApp:
             log.info(f" SMP2 v3 appsession {smp_appsession} for sample {dna_sample} and {rna_sample} has finished with "
                      f"status {poll_result}")
             appresults = polling.find_appresults()
-            if len(appresults) != 1:
-                raise Exception(f"Expected 1 appresult for appsession {smp_appsession}, dna sample {dna_sample} "
-                                f"but found {len(appresults)}. File path to results could not be determined- "
-                                f"please download files manually from BaseSpace")
-            self.appresults_dict[dna_sample] = {"appresults": appresults[0], "status": poll_result}
+            if len(appresults) != 1 and poll_result is not "Fail":
+                raise Exception(f"Expected 1 appresult for successful appsession {smp_appsession}, dna sample "
+                                f"{dna_sample} but found {len(appresults)}. File path to results could not be "
+                                f"determined- please download files manually from BaseSpace")
+            elif poll_result is not "Fail":
+                self.appresults_dict[dna_sample] = {"appresults": appresults[0], "status": poll_result}
+            elif poll_result == "Fail":
+                self.appresults_dict[dna_sample] = {"appresults": None, "status": poll_result}
+            else:
+                raise Exception(f"Unexpected status {poll_result} returned by {smp_appsession} for dna sample "
+                                f"{dna_sample}. Unable to handle this status appropriately.")
         return self.appresults_dict
 
     def get_biosamples(self, biosample_name):

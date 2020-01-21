@@ -7,7 +7,6 @@ Options provided to manually launch and resume the pipeline from various stages 
 """
 import os
 import logging
-import sys
 import argparse
 import textwrap
 import json
@@ -184,12 +183,13 @@ class CrukSmp:
         # Download all required files- every step requires this
         file_download = FileDownloader(self.authentication_token, smp_appresults, worksheet)
         file_download.download_files()
+        log.info(f"CRUK workflow completed")
 
 
 if __name__ == '__main__':
 
     __version__ = '2.0.0'
-    __updated__ = "07/11/2019"
+    __updated__ = "14/11/2019"
 
     # Set up logger
     log = logging.getLogger("cruk_smp")
@@ -199,10 +199,13 @@ if __name__ == '__main__':
     handler_out.setLevel(logging.INFO)
     handler_out.addFilter(MyFilter(logging.INFO))
     #handler_err = logging.StreamHandler(sys.stderr)
+    handler_dbg = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.dbg"))
+    handler_dbg.setLevel(logging.WARNING)
+    handler_dbg.addFilter(MyFilter(logging.WARNING))
     handler_err = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.err"))
-    handler_err.setLevel(logging.WARNING)
-    handler_err.addFilter(MyFilter(logging.WARNING))
+    handler_err.setLevel(logging.ERROR)
     log.addHandler(handler_out)
+    log.addHandler(handler_dbg)
     log.addHandler(handler_err)
 
     # Load command line arguments
