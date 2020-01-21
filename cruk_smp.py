@@ -127,6 +127,7 @@ class CrukSmp:
         if not args.tst170 and not args.smp2 and not args.dl_files:
             # Upload fastq files
             print(f"Uploading fastq files for all samples")
+            log.info(f"Uploading fastq files for all samples")
             upload.upload_files()
 
         # Create launch app object for TST170 app
