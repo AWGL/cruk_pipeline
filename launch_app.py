@@ -52,7 +52,7 @@ class LaunchApp:
         rna_biosample_id = self.get_biosamples(f"{self.worksheet}-{rna_sample}")
 
         # Create configuration for TST 170 app launch
-        app_config = self.generate_app_config(dna_biosample_id, rna_biosample_id)
+        app_config = self.generate_app_config(dna_sample, dna_biosample_id, rna_biosample_id)
 
         # Find specific application ID for application and version number of TST 170 app
         self.get_app_group_id()
@@ -86,11 +86,11 @@ class LaunchApp:
             self.get_app_id()
             log.info(f"Launching {self.app_name} {self.app_version} for {dna_sample} and "
                      f"{self.sample_pairs.get(dna_sample)}")
-            smp_appsession[dna_sample] = self.launch_smp_analysis(tst_values)
+            smp_appsession[dna_sample] = self.launch_smp_analysis(dna_sample, tst_values)
             self.smp = smp_appsession
         return self.smp
 
-    def launch_smp_analysis(self, tst_values):
+    def launch_smp_analysis(self, dna_sample_id, tst_values):
         '''
         :param launch_smp:
         :param tst_values:
@@ -100,7 +100,7 @@ class LaunchApp:
         dna_dataset_id = self.get_datasets(tst_values.get("appsession"), tst_values.get("dna_biosample_id"))
         rna_dataset_id = self.get_datasets(tst_values.get("appsession"), tst_values.get("rna_biosample_id"))
         # Create configuration for SMP2 v3 app launch
-        smp_app_config = self.generate_smp_app_config(dna_dataset_id, rna_dataset_id)
+        smp_app_config = self.generate_smp_app_config(dna_sample_id, dna_dataset_id, rna_dataset_id)
 
         # Launch SMP2 v3
         smp_appsession = self.launch_application(smp_app_config)
@@ -146,7 +146,7 @@ class LaunchApp:
             raise Exception(f"Problem with finding biosample data in BaseSpace: {response.json()}")
         return response.json().get("Items")[0].get("Id")
 
-    def generate_app_config(self, dna_biosample_id, rna_biosample_id):
+    def generate_app_config(self, dna_sample_id, dna_biosample_id, rna_biosample_id):
         # Generate biosamples in correct format for application launch
         dna_libraryprep_id = self.get_biosample_info(dna_biosample_id)
         dna_config = f"biosamples/{dna_biosample_id}/librarypreps/{dna_libraryprep_id}"
@@ -156,6 +156,8 @@ class LaunchApp:
         current_time = datetime.datetime.now()
         # remove seconds from date and time and create string
         date_time = ":".join(str(current_time).split(":")[:-1])
+        # Obtain rna sample name for name of appsession
+        rna_sample_id = self.sample_pairs.get(dna_sample_id)
         with open(os.path.join(os.getcwd(), "app.config.template.json")) as app_config_file:
             try:
                 app_config = json.load(app_config_file)
@@ -163,18 +165,20 @@ class LaunchApp:
                 inp["dna-sample-id"] = dna_config
                 inp["project-id"] = f"projects/{self.project_id}"
                 inp["rna-sample-id"] = rna_config
-                app_config["Name"] = f"TruSight Tumour 170 {date_time}"
+                app_config["Name"] = f"{dna_sample_id}-{rna_sample_id} TruSight Tumour 170 {date_time}"
             except json.decoder.JSONDecodeError:
                 raise Exception("Config file is incorrectly formatted and does not contain valid json")
         return app_config
 
-    def generate_smp_app_config(self, dna_dataset_id, rna_dataset_id):
+    def generate_smp_app_config(self, dna_sample_id, dna_dataset_id, rna_dataset_id):
         dna_config = f"datasets/{dna_dataset_id}"
         rna_config = f"datasets/{rna_dataset_id}"
         # Obtain date and time
         current_time = datetime.datetime.now()
         # remove seconds from date and time and create string
         date_time = ":".join(str(current_time).split(":")[:-1])
+        # Obtain rna sample name for name of appsession
+        rna_sample_id = self.sample_pairs.get(dna_sample_id)
         with open(os.path.join("smpapp.config.template.json")) as smpapp_config_file:
             try:
                 app_config = json.load(smpapp_config_file)
@@ -182,7 +186,7 @@ class LaunchApp:
                 inp["app-result-dna-id"] = dna_config
                 inp["project-id"] = f"projects/{self.project_id}"
                 inp["app-result-rna-id"] = rna_config
-                app_config["Name"] = f"SMP2 v3 {date_time}"
+                app_config["Name"] = f"{dna_sample_id}-{rna_sample_id} SMP2 v3 {date_time}"
             except json.decoder.JSONDecodeError:
                 raise Exception("SMP config file is incorrectly formatted and does not contain valid json")
         return app_config
