@@ -132,7 +132,7 @@ class CrukSmp:
 
         # Create launch app object for TST170 app
         launch_tst = LaunchApp(self.authentication_token, worksheet, project, app_name,
-                               app_version, sample_pairs, dna_only)
+                               app_version, sample_pairs)
 
         # If resuming from TST170 required or full pipeline- launch the TST170 app
         if not args.smp2 and not args.dl_files:
@@ -161,7 +161,7 @@ class CrukSmp:
             # Create launch app object for SMP2 v3 if not just downloading files- poll TST170 and when complete
             # launch SMP2
             launch_smp = LaunchApp(self.authentication_token, worksheet, project, smp2_app_name,
-                                   smp2_app_version, sample_pairs, dna_only, tst_170)
+                                   smp2_app_version, sample_pairs, tst_170)
             # Poll the tst 170 appsessions until completion, then launch smp2 app
             smp_appsession = launch_smp.poll_tst170_launch_smp()
 
@@ -181,8 +181,7 @@ class CrukSmp:
                                         f"Please delete SMP2 analysis in BaseSpace and resume pipeline from"
                                         f"SMP2 stage.")
             launch_smp = LaunchApp(self.authentication_token, worksheet, project, smp2_app_name,
-                                   smp2_app_version, sample_pairs, dna_only, None, smp)  # None as tst170 app data not required
-
+                                   smp2_app_version, sample_pairs, None, smp)  # None as tst170 app data not required
 
         # Poll the smp appsessions until completion
         smp_appresults = launch_smp.poll_smp2()

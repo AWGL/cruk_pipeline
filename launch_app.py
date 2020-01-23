@@ -12,7 +12,7 @@ log = logging.getLogger("cruk_smp")
 
 class LaunchApp:
 
-    def __init__(self, auth, worksheet, project_id, app_name, app_version, sample_pairs, dna_only, tst_170=None,
+    def __init__(self, auth, worksheet, project_id, app_name, app_version, sample_pairs, tst_170=None,
                  smp=None):  #TODO May not need dna only argument
         self.authorise = auth
         self.worksheet = worksheet
@@ -20,7 +20,6 @@ class LaunchApp:
         self.app_name = app_name
         self.app_version = app_version
         self.sample_pairs = sample_pairs
-        self.dna_only = dna_only
         if tst_170 is None:
             self.tst_170 = {}
         else:
