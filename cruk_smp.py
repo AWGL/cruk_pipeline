@@ -168,7 +168,7 @@ class CrukSmp:
             # Dump data to file
             with open(os.path.join(os.getcwd(), "smp.json"), 'w') as s:
                 json.dump(smp_appsession, s)
-        '''
+
         # If downloading files from a completed SMP2 app required
         # Create a LaunchApp object for smp2 app if flag to only download files is set- allows for polling of SMP2
         if args.dl_files:
@@ -181,7 +181,7 @@ class CrukSmp:
                                         f"Please delete SMP2 analysis in BaseSpace and resume pipeline from"
                                         f"SMP2 stage.")
             launch_smp = LaunchApp(self.authentication_token, worksheet, project, smp2_app_name,
-                                   smp2_app_version, sample_pairs, None, smp)  # None as tst170 app data not required
+                                   smp2_app_version, sample_pairs, dna_only, None, smp)  # None as tst170 app data not required
 
 
         # Poll the smp appsessions until completion
@@ -191,7 +191,7 @@ class CrukSmp:
         file_download = FileDownloader(self.authentication_token, smp_appresults, worksheet)
         file_download.download_files()
         log.info(f"CRUK workflow completed")
-        '''
+
 
 if __name__ == '__main__':
 
