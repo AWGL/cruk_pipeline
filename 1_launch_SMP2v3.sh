@@ -8,7 +8,7 @@ cd $PBS_O_WORKDIR
 #Description: CRUK SMP2v3 Illumina TST170 Pipeline (Illumina paired-end). Not for use with other library preps/ experimental conditions.
 #Author: Sara Rey, All Wales Medical Genetics Lab
 #Mode: BY_SAMPLE
-version="2.0.0"
+version="2.0.1"
 
 # Directory structure required for pipeline
 #
