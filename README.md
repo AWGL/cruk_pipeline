@@ -51,11 +51,15 @@ bash 1_launch_SMP2v3.sh
 ```
 ***
 ## Usage
-#### Notes on directory structure
+### Notes on directory structure
 The code is expecting a directory structure where fastqs and a variables file created by ```https://github.com/AWGL/MakeVariableFiles``` are located within directories named with the sample file name, and the sample sheet ```SampleSheet.csv``` is in the same directory as all of the scripts.
 
 e.g.
 ![](dir.png)
+
+### DNA only workflow
+Samples for which there is no RNA available for analysis should be flagged to go through a DNA only workflow. The dna variable in the Description field of the sample sheet should be set to 1 (default for paired analysis is 0).
+
 ### Default options
 The pipeline should be automatically initiated after sequencing by IlluminaQC (see https://github.com/AWGL/IlluminaQC). This launches the script ```1_launch_SMP2v3.sh``` which aggregates QC data for all samples on the run and launches the script ```cruk_smp.py``` with the default location for the config file on the cluster cvx-gen01.
 
@@ -67,7 +71,7 @@ python cruk_smp.py -c /path/to/JSON/config/file/
 ### Other options
 To resume the process for a partially complete process, for example due to loss of internet connectivity. There are the following options:
 
-1. After all fastq files have been successfully uploaded- **Launch TST170 app for all DNA/RNA pairs**
+1. After all fastq files have been successfully uploaded- **Launch TST170 app for all DNA/RNA pairs and samples flagged for DNA only workflow**
 	+ 	Command line option -t or --tst170
 
 		e.g.
@@ -75,7 +79,7 @@ To resume the process for a partially complete process, for example due to loss 
 python cruk_smp.py -t -c /path/to/JSON/config/file/
 ```
 
-2. After TST170 app has been launched for all sample pairs- **Poll status of TST170 app and once complete launch SMP2v3 app for all DNA/RNA pairs**
+2. After TST170 app has been launched for all sample pairs- **Poll status of TST170 app and once complete launch SMP2v3 app for all DNA/RNA pairs and samples flagged for DNA only workflow**
 	+ 	Command line option -s or --smp2
 
 		e.g.
@@ -83,7 +87,7 @@ python cruk_smp.py -t -c /path/to/JSON/config/file/
 python cruk_smp.py -s -c /path/to/JSON/config/file/
 ```
 
-3. After the SMP2v3 app has been launched for all sample pairs- **Download required files**
+3. After the SMP2v3 app has been launched for all sample pairs or individial samples for the DNA only workflow- **Download required files**
 	+ 	Command line option -d or --dl_files
 
 		e.g.
@@ -110,7 +114,6 @@ and use the bioinformatics team email and transfer account password to log in.
 * There is no way to easily upload fastqs for a subset of samples. A failure at this stage of the process requires all fastqs to be re-uploaded.
 * Deletion of data through the BaseSpace GUI may require navigating to the biosamples tab and setting a new (different, existing) default project for biosamples before data can be deleted.
 * Test data and a suite of tests has not yet been written.
-* DNA samples without an RNA pair are not supported (this may be a future requirement).
 
 ### Dependency List
 In case the Conda environment build fails.

@@ -13,7 +13,7 @@ def identify_worksheet(variables):
     worksheets = [(v.get('worklistId')).strip('"') for k, v in variables.items()]  # Remove quotes in variables file
     worksheets = list(set(worksheets))
     if len(worksheets) > 1:
-        raise Exception("More than one worksheet id present on this run. Not sure what to call the project in"
+        raise Exception("More than one worksheet id present on this run. Not sure what to call the project in "
                         "BaseSpace.")
     else:
         try:
@@ -71,5 +71,22 @@ def create_sample_pairs(variables):
         if not patient_name == "null":
             pairs_dict[dna_dict.get(patient_name)] = rna_dict.get(patient_name, None)
     return pairs_dict
+
+
+def find_samples_to_pair(variables):
+    pairs_or_dna = {}
+    to_pair = {}
+    dna_only = {}
+    for s, p in variables.items():
+        if p.get('dna') == '0':
+            to_pair[s] = p
+        elif p.get('dna') == '1':
+            dna_only[s] = p
+    pairs_or_dna['dnas'] = dna_only
+    pairs_or_dna['pairs'] = to_pair
+    return pairs_or_dna
+
+
+
 
 

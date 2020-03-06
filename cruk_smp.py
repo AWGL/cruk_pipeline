@@ -106,7 +106,11 @@ class CrukSmp:
         worksheet = identify_worksheet(all_variables)
 
         # Pair samples- DNA sample is key, RNA sample to look up- if No RNA sample, it is None
-        sample_pairs = create_sample_pairs(all_variables)
+        # Don't pair samples where dna flag is set to 1
+        pairing_or_dna = find_samples_to_pair(all_variables)
+        dna_only = pairing_or_dna.get('dnas')
+        to_pair = pairing_or_dna.get('pairs')
+        sample_pairs = create_sample_pairs(to_pair)
         # Write out sample pairs to log file for checking if needed
         log.warning(f"sample pairs are {sample_pairs}")
 
@@ -122,7 +126,8 @@ class CrukSmp:
         # If whole pipeline required then upload fastq files
         if not args.tst170 and not args.smp2 and not args.dl_files:
             # Upload fastq files
-            print(f"uploading fastq files for all samples")
+            print(f"Uploading fastq files for all samples")
+            log.info(f"Uploading fastq files for all samples")
             upload.upload_files()
 
         # Create launch app object for TST170 app
@@ -131,9 +136,11 @@ class CrukSmp:
 
         # If resuming from TST170 required or full pipeline- launch the TST170 app
         if not args.smp2 and not args.dl_files:
-            # Launch TST170 application for each pair in turn
+            # Launch TST170 application for each pair in turn and then for each dna only sample in turn
             # IMPORTANT NOTE: Only processes paired data
-            tst_170 = launch_tst.launch_tst170_pairs()
+            tst_170 = launch_tst.launch_tst170(sample_pairs)
+            if dna_only:
+                tst_170 = launch_tst.launch_tst170(dna_only)
 
             # Dump data to file
             with open(os.path.join(os.getcwd(), "tst_170.json"), 'w') as t:
@@ -156,7 +163,7 @@ class CrukSmp:
             launch_smp = LaunchApp(self.authentication_token, worksheet, project, smp2_app_name,
                                    smp2_app_version, sample_pairs, tst_170)
             # Poll the tst 170 appsessions until completion, then launch smp2 app
-            smp_appsession = launch_smp.poll_tst170_launch_smp2()
+            smp_appsession = launch_smp.poll_tst170_launch_smp()
 
             # Dump data to file
             with open(os.path.join(os.getcwd(), "smp.json"), 'w') as s:
@@ -176,7 +183,6 @@ class CrukSmp:
             launch_smp = LaunchApp(self.authentication_token, worksheet, project, smp2_app_name,
                                    smp2_app_version, sample_pairs, None, smp)  # None as tst170 app data not required
 
-
         # Poll the smp appsessions until completion
         smp_appresults = launch_smp.poll_smp2()
 
@@ -188,17 +194,15 @@ class CrukSmp:
 
 if __name__ == '__main__':
 
-    __version__ = '2.0.0'
-    __updated__ = "14/11/2019"
+    __version__ = '2.0.1'
+    __updated__ = "21/01/2020"
 
     # Set up logger
     log = logging.getLogger("cruk_smp")
     log.setLevel(logging.DEBUG)
-    #handler_out = logging.StreamHandler(sys.stdout)
     handler_out = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.out"))
     handler_out.setLevel(logging.INFO)
     handler_out.addFilter(MyFilter(logging.INFO))
-    #handler_err = logging.StreamHandler(sys.stderr)
     handler_dbg = logging.FileHandler(os.path.join(os.getcwd(), "cruk_smp.dbg"))
     handler_dbg.setLevel(logging.WARNING)
     handler_dbg.addFilter(MyFilter(logging.WARNING))
