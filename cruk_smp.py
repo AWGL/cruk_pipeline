@@ -198,8 +198,8 @@ class CrukSmp:
 
 if __name__ == '__main__':
 
-    __version__ = '2.0.1'
-    __updated__ = "21/01/2020"
+    __version__ = '2.0.2'
+    __updated__ = "05/10/2020"
 
     # Set up logger
     log = logging.getLogger("cruk_smp")
