@@ -10,6 +10,7 @@ import logging
 import argparse
 import textwrap
 import json
+import time
 from parse_variables_files import *
 from file_upload import FileUpload
 from launch_app import LaunchApp
@@ -130,6 +131,9 @@ class CrukSmp:
             log.info(f"Uploading fastq files for all samples")
             upload.upload_files()
 
+        # add 5 minute delay to make sure all biosamples are fully uploaded
+        time.sleep(300)
+            
         # Create launch app object for TST170 app
         launch_tst = LaunchApp(self.authentication_token, worksheet, project, app_name,
                                app_version, sample_pairs)
@@ -194,8 +198,8 @@ class CrukSmp:
 
 if __name__ == '__main__':
 
-    __version__ = '2.0.1'
-    __updated__ = "21/01/2020"
+    __version__ = '2.0.2'
+    __updated__ = "05/10/2020"
 
     # Set up logger
     log = logging.getLogger("cruk_smp")
