@@ -3,8 +3,8 @@
 #SBATCH --time=12:00:00
 #SBATCH --output=CRUK-%N-%j.output
 #SBATCH --error=CRUK-%N-%j.error
-#SBATCH --partition=high
-#SBATCH --cpus-per-task=40
+#SBATCH --partition=medium
+#SBATCH --cpus-per-task=5
 
 # Description: CRUK SMP2v3 Illumina TST170 Pipeline (Illumina paired-end). Not for use with other library preps/ experimental conditions.
 # Author:      Sara Rey, All Wales Medical Genetics Lab
@@ -105,9 +105,7 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py" .
 
     # Combine QC files for whole run
-    conda activate cruk
     python /data/diagnostics/scripts/merge_qc_files.py .
-    conda deactivate"
 
     # Make file to signal to cron to start BaseSpace section
     touch bs_upload_required
