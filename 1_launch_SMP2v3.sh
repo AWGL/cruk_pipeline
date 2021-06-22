@@ -108,6 +108,6 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     python /data/diagnostics/scripts/merge_qc_files.py .
 
     # Make file to signal to cron to start BaseSpace section
-    touch bs_upload_required
+    touch bs_required
 
 fi
