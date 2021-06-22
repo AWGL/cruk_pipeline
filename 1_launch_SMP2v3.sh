@@ -1,30 +1,17 @@
 #!/bin/bash
-#PBS -l walltime=120:00:00
-#PBS -l ncpus=12
-set -euo pipefail
-PBS_O_WORKDIR=(`echo $PBS_O_WORKDIR | sed "s/^\/state\/partition1//" `)
-cd $PBS_O_WORKDIR
 
-#Description: CRUK SMP2v3 Illumina TST170 Pipeline (Illumina paired-end). Not for use with other library preps/ experimental conditions.
-#Author: Sara Rey, All Wales Medical Genetics Lab
-#Mode: BY_SAMPLE
-version="2.0.2"
+#SBATCH --time=12:00:00
+#SBATCH --output=CRUK-%N-%j.output
+#SBATCH --error=CRUK-%N-%j.error
+#SBATCH --partition=medium
+#SBATCH --cpus-per-task=5
 
-# Directory structure required for pipeline
-#
-# /data
-# â””â”€â”€ results
-#     â””â”€â”€ seqId
-#         â”œâ”€â”€ panel1
-#         â”‚Â Â  â”œâ”€â”€ sample1
-#         â”‚Â Â  â”œâ”€â”€ sample2
-#         â”‚Â Â  â””â”€â”€ sample3
-#         â””â”€â”€ panel2
-#             â”œâ”€â”€ sample1
-#             â”œâ”€â”€ sample2
-#             â””â”€â”€ sample3
-#
-# Script 1 runs in sample folder, requires fastq files split by lane
+# Description: CRUK SMP2v3 Illumina TST170 Pipeline (Illumina paired-end). Not for use with other library preps/ experimental conditions.
+# Author:      Sara Rey, All Wales Medical Genetics Lab
+# Mode:        BY_SAMPLE
+# Use:         sbatch within sample directory
+
+version="master"
 
 countQCFlagFails() {
     #count how many core FASTQC tests failed
@@ -38,6 +25,18 @@ countQCFlagFails() {
 #load sample & pipeline variables
 . *.variables
 . /data/diagnostics/pipelines/CRUK/CRUK-"$version"/"$panel"/CRUK-"$version"_"$panel".variables
+
+
+# activate conda env
+module purge
+module load anaconda
+. ~/.bashrc
+conda activate cruk
+
+
+# catch fails early and terminate
+set -euo pipefail
+
 
 ### Preprocessing ###
 
@@ -55,8 +54,8 @@ for fastqPair in $(ls "$sampleId"_S*.fastq.gz | cut -d_ -f1-3 | sort | uniq); do
     unzippedRead2Fastq=${read2Fastq%%.*}
 
     #fastqc
-    /share/apps/fastqc-distros/fastqc_v0.11.5/fastqc -d /state/partition1/tmpdir --threads 12 --extract "$read1Fastq"
-    /share/apps/fastqc-distros/fastqc_v0.11.5/fastqc -d /state/partition1/tmpdir --threads 12 --extract "$read2Fastq"
+    fastqc --threads 12 --extract "$read1Fastq"
+    fastqc --threads 12 --extract "$read2Fastq"
 
     mv "$unzippedRead1Fastq"_fastqc/summary.txt "$unzippedRead1Fastq"_fastqc.txt
     mv "$unzippedRead2Fastq"_fastqc/summary.txt "$unzippedRead2Fastq"_fastqc.txt
@@ -71,6 +70,7 @@ for fastqPair in $(ls "$sampleId"_S*.fastq.gz | cut -d_ -f1-3 | sort | uniq); do
     rm -r "$unzippedRead1Fastq"_fastqc "$unzippedRead2Fastq"_fastqc
 
 done
+
 
 #Now that fastqs have been processed add the sample to a list
 echo -e $(ls *.fastq.gz | cut -d'_' -f1-2 | uniq) >> ../FASTQs.list
@@ -104,14 +104,10 @@ if [ $numSamplesInProject -eq $numSamplesWithFqs ]; then
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/smpapp.config.template.json" \
     "/data/diagnostics/pipelines/CRUK/CRUK-"$version"/split_file.py" .
 
-    # Log into head node, Activate Conda environment, launch CRUK SMP2v3 pipeline, deactivate conda environment
-    wd=$PWD
-    ssh transfer@cvx-gen01 "cd '$wd' \
-    && source /home/transfer/miniconda3/bin/activate cruk \
-    && python cruk_smp.py -c /data/diagnostics/pipelines/CRUK/CRUK-"$version"/access/ \
-    && source /home/transfer/miniconda3/bin/deactivate"
-
-    ### Generate Combined QC File ###
+    # Combine QC files for whole run
     python /data/diagnostics/scripts/merge_qc_files.py .
+
+    # Make file to signal to cron to start BaseSpace section
+    touch bs_required
 
 fi

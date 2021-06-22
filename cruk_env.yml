@@ -8,5 +8,6 @@ dependencies:
   - python-dateutil=2.8.0
   - requests=2.22.0
   - biopython=1.74
+  - bioconda::fastqc=0.11.5
 prefix: /miniconda2/envs/cruk
 
